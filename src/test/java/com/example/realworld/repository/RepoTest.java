@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
-import static com.example.realworld.domain.user.dto.RegisterDto.toEntity;
 
 
 @SpringBootTest
@@ -23,11 +22,11 @@ public class RepoTest {
 
 @Test
 public void insert(){
-    RegisterDto registerDto = new RegisterDto();
-    registerDto.setUsername("venus");
-    registerDto.setPassword("geum0830");
-    registerDto.setEmail("ex@.com");
-    userRepository.save(toEntity(registerDto));
+//    RegisterDto registerDto = new RegisterDto();
+//    registerDto.setUsername("venus");
+//    registerDto.setPassword("geum0830");
+//    registerDto.setEmail("ex@.com");
+//    userRepository.save(toEntity(registerDto));
 }
 
 

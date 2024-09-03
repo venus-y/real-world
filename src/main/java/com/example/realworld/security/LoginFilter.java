@@ -1,4 +1,4 @@
-package com.example.realworld.domain.user.security;
+package com.example.realworld.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
