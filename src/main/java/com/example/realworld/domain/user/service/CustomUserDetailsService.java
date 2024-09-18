@@ -18,13 +18,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        User userData = userRepository.findByUsername(username);
-//        if (userData != null) {
-//            return new CustomUserDetails(userData);
-//        }
-//        return Optional.of(userData).orElseThrow(NullPointerException::new);
-//        return Optional
-//                .ofNullable(userData)
 
         return userRepository.findByUsername(username)
                 .map(CustomUserDetails::new)
