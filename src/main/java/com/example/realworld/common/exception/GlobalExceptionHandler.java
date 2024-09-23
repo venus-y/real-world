@@ -32,15 +32,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new Response("BE", "Bind Exception", errorFields));
+                .body(new Response("Bind Exception", errorFields));
+    }
+
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<Object> handleException(Exception e) {
+        String message = e.getMessage();
+        return ResponseEntity
+                .internalServerError()
+                .body(message);
     }
 
     @AllArgsConstructor
     @Getter
     public static class Response {
-        private String code;
         private String message;
-        private List<ErrorField> erros;
+        private List<ErrorField> errors;
 
         @AllArgsConstructor
         @Getter
