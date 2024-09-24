@@ -1,8 +1,10 @@
 package com.example.realworld.domain.user.controller;
 
 
+import com.example.realworld.common.aop.CheckBindingErrors;
 import com.example.realworld.domain.user.dto.MemberRegisterDto;
-import com.example.realworld.domain.user.service.MemberService;
+import com.example.realworld.domain.user.repository.UserRepository;
+import com.example.realworld.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,30 +17,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.stream.Collectors;
-
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
-public class MemberController {
+public class UserController {
 
-    private final MemberService registerService;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
     @PostMapping("/")
+    @CheckBindingErrors
+
     public ResponseEntity<Object> register(@Valid @RequestBody MemberRegisterDto memberRegisterDto, BindingResult bindingResult) throws BindException {
 
-        if (bindingResult.hasErrors()) {
-
-            String errorMessage = bindingResult.getAllErrors().stream()
-                    .map(error -> error.getDefaultMessage())
-                    .collect(Collectors.joining(", "));
-            log.info("Validation errors; {} ", errorMessage);
-
-            throw new BindException(bindingResult);
-        }
-
-        Long id = registerService.insert(memberRegisterDto);
+        Long id = userService.insert(memberRegisterDto);
 
         return new ResponseEntity<>(id, HttpStatus.OK);
     }

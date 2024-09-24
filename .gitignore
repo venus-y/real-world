@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Firebase key 파일 추가
+src/main/resources/key/realworld-64385-firebase-adminsdk-74i2n-46cbc6df19.json

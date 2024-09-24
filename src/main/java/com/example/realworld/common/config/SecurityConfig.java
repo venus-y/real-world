@@ -1,79 +1,91 @@
-package com.example.realworld.security;
+package com.example.realworld.common.config;
 
+import com.example.realworld.domain.user.repository.UserRepository;
+import com.example.realworld.security.JWTFilter;
+import com.example.realworld.security.JWTUtil;
+import com.example.realworld.security.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @Configuration
 @RequiredArgsConstructor
-public class WebConfig {
+public class SecurityConfig {
 
     private final AuthenticationConfiguration configuration;
     private final JWTUtil jwtUtil;
+    private final AuthenticationEntryPoint entryPoint;
+    private final AccessDeniedHandler deniedHandler;
+    private final UserRepository userRepository;
+    private final String[] permitAllList = {"/login", "/", "/users/", "/swagger-ui/**", "/v3/api-docs/**", "/error"};
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return  configuration.getAuthenticationManager();
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-				//csrf disable
+        //csrf disable
         http
                 .csrf((auth) -> auth.disable());
 
-				//From 로그인 방식 disable
+        //From 로그인 방식 disable
         http
                 .formLogin((auth) -> auth.disable());
 
-				//http basic 인증 방식 disable
+        //http basic 인증 방식 disable
         http
                 .httpBasic((auth) -> auth.disable());
 
-				//경로별 인가 작업
+        //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/members/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-												.requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/admin/test").hasRole("ADMIN")
+                        .requestMatchers(permitAllList).permitAll()
+                        .requestMatchers("/owners/**", "/shops/**").hasAnyRole("OWNER", "ADMIN")
                         .anyRequest().authenticated());
 
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(configuration)), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(configuration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         http
+//                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint)
                 .exceptionHandling()
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(deniedHandler);
 
-				//세션 설정
+
+        //세션 설정
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
-}
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.realworld.domain.user.dto;
 
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -37,6 +38,9 @@ public class MemberRegisterDto {
     @NotEmpty
     @Pattern(regexp = "^\\d{5}$", message = "우편번호는 5자리 숫자여야 합니다.")
     private String zipcode;
+
+    @Nullable
+    private String fcmToken;
 
 
 }
