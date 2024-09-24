@@ -10,25 +10,12 @@ import java.util.Optional;
 
 
 @SpringBootTest
-//@WebMvcTest
-//@DataJpaTest
+
 public class RepoTest {
     @Autowired
     UserRepository userRepository;
 
-    @Test
-    public void insert() {
-//    RegisterDto registerDto = new RegisterDto();
-//    registerDto.setUsername("venus");
-//    registerDto.setPassword("geum0830");
-//    registerDto.setEmail("ex@.com");
-//    userRepository.save(toEntity(registerDto));
-    }
 
 
-    @Test
-    public void findByUsername() {
-        Optional<User> venus = userRepository.findByUsername("venus");
-        System.out.println(venus.orElseThrow());
-    }
+
 }
