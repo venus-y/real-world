@@ -1,4 +1,4 @@
-package com.example.realworld.domain.order.controller;
+package com.example.realworld.domain.order.api;
 
 import com.example.realworld.common.aop.CheckBindingErrors;
 import com.example.realworld.domain.order.dto.OrderRequestDto;
@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,4 +32,11 @@ public class OrderController {
         Long orderId = orderService.processOrder(orderRequestDto, user.getUsername());
         return new ResponseEntity<>(orderId, HttpStatus.OK);
     }
+
+    @PutMapping("/{orderId}/approval")
+    public void approve(@PathVariable(name = "orderId") Long orderId, @CurrentUser User user) {
+        orderService.approveOrder(orderId, user.getId());
+
+    }
+
 }

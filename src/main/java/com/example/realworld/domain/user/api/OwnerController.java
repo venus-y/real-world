@@ -1,4 +1,4 @@
-package com.example.realworld.domain.user.controller;
+package com.example.realworld.domain.user.api;
 
 import com.example.realworld.domain.menu.dto.MenuRequestDto;
 import com.example.realworld.domain.user.service.OwnerService;

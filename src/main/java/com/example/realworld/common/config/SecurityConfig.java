@@ -23,12 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String[] PERMIT_ALL_OPERATIONS = {"/login", "/", "/users/", "/swagger-ui/**", "/v3/api-docs/**", "/error"};
+    private static final String[] ADMIN_OWNER_OPERATIONS = {"/owners/**", "/shops/**", "/orders/{orderId}/approval"};
     private final AuthenticationConfiguration configuration;
     private final JWTUtil jwtUtil;
     private final AuthenticationEntryPoint entryPoint;
     private final AccessDeniedHandler deniedHandler;
     private final UserRepository userRepository;
-    private final String[] permitAllList = {"/login", "/", "/users/", "/swagger-ui/**", "/v3/api-docs/**", "/error"};
 
     @Bean
 
@@ -61,8 +62,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/admin/test").hasRole("ADMIN")
-                        .requestMatchers(permitAllList).permitAll()
-                        .requestMatchers("/owners/**", "/shops/**").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers(PERMIT_ALL_OPERATIONS).permitAll()
+                        .requestMatchers(ADMIN_OWNER_OPERATIONS).hasAnyRole("OWNER", "ADMIN")
                         .anyRequest().authenticated());
 
         http

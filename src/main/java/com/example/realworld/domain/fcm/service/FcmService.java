@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -60,59 +60,78 @@ public class FcmService {
         FirebaseApp.initializeApp(options);
     }
 
-    public void sendMessageByTopic(String title, String body) throws IOException, FirebaseMessagingException {
-        FirebaseMessaging.getInstance().send(Message.builder()
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
-                .setTopic(topicName)
-                .build());
+    public void sendMessageByToken(String title, String body, String username) {
+        String fcmToken = getFcmToken(username);
 
-    }
-
-    public void sendMessageByToken(String title, String body, String token) throws FirebaseMessagingException {
-        FirebaseMessaging.getInstance().send(Message.builder()
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
-                .setToken(token)
-                .build());
-    }
-
-    public void sendMessageToOwners(String ownerName) {
-
-        ArrayList<String> fcmTokens = getFcmTokens(ownerName);
-
-        ArrayList<CompletableFuture<BatchResponse>> futures = new ArrayList<>();
-
-        for (int i = 0; i < fcmTokens.size(); i += BATCH_SIZE) {
-            List<String> batchList = fcmTokens.subList(i, Math.min(fcmTokens.size(), i + BATCH_SIZE));
-            futures.add(sendMulticastMessageAsync("테스트제목", "테스트바디", batchList));
+        try {
+            FirebaseMessaging.getInstance().send(Message.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle(title)
+                            .setBody(body)
+                            .build())
+                    .setToken(fcmToken)
+                    .build());
+        } catch (FirebaseMessagingException e) {
+            throw new CompletionException("메세지 전송에 실패했습니다.", e.getCause());
         }
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        int totalSuccess = futures.stream()
-                .mapToInt(f -> {
-                    try {
-                        return f.join()
-                                .getSuccessCount();
-                    } catch (CompletionException e) {
-                        throw e;
-                    }
-                }).sum();
-
     }
 
-    public ArrayList<String> getFcmTokens(String ownerName) {
-        String key = FCM_TOKEN_KEY_PREFIX + ownerName;
+
+    // 라이더에게 메시지 발송 시 사용
+//    public void sendMessageToRiders(String userName) {
+//
+//        ArrayList<String> fcmTokens = getFcmTokens(userName);
+//
+//        ArrayList<CompletableFuture<BatchResponse>> futures = new ArrayList<>();
+//
+//        for (int i = 0; i < fcmTokens.size(); i += BATCH_SIZE) {
+//            List<String> batchList = fcmTokens.subList(i, Math.min(fcmTokens.size(), i + BATCH_SIZE));
+//            futures.add(sendMulticastMessageAsync("테스트제목", "테스트바디", batchList));
+//        }
+//
+//        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//
+//        int totalSuccess = futures.stream()
+//                .mapToInt(f -> {
+//                    try {
+//                        return f.join()
+//                                .getSuccessCount();
+//                    } catch (CompletionException e) {
+//                        throw e;
+//                    }
+//                }).sum();
+//
+//    }
+
+    public String getFcmToken(String userName) {
+        String key = userName;
 
         Set<String> members = redisTemplate.opsForSet().members(key);
 
+
         if (!members.isEmpty()) {
-            return new ArrayList<>(members);
+            String token = members.stream()
+                    .findFirst()
+                    .get();
+
+            return token;
+        }
+
+        throw new NotFoundException("등록된 기기가 존재하지 않습니다");
+    }
+
+    public List<String> getMultipleFcmTokens(List<String> userIds) {
+
+
+        List<String> fcmTokens
+                = userIds.stream()
+                .map(userId -> redisTemplate.opsForSet().members(userId))
+                .filter(Objects::nonNull)
+                .flatMap(Set::stream)
+                .toList();
+
+        if (!fcmTokens.isEmpty()) {
+            return fcmTokens;
         }
 
         throw new NotFoundException("등록된 기기가 존재하지 않습니다");
@@ -130,12 +149,15 @@ public class FcmService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return FirebaseMessaging.getInstance().sendEachForMulticastAsync(message).get();
+                return FirebaseMessaging
+                        .getInstance()
+                        .sendEachForMulticastAsync(message).get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new CompletionException("Failed to send multicast message", e.getCause());
             }
         });
-        
+
     }
+
 
 }

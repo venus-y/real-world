@@ -1,4 +1,4 @@
-package com.example.realworld.domain.admin.controller;
+package com.example.realworld.domain.admin.api;
 
 
 import com.example.realworld.domain.admin.service.AdminService;

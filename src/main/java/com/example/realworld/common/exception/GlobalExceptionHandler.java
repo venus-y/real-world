@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         List<FieldError> fieldErrors = e.getFieldErrors();
         List<Response.ErrorField> errorFields = new ArrayList<>();
         for (FieldError fieldError : fieldErrors) {
-            errorFields.add(new Response.ErrorField(fieldError.getRejectedValue(), fieldError.getDefaultMessage()));
+            errorFields.add(new Response.ErrorField(fieldError.getRejectedValue(), fieldError.getField(), fieldError.getDefaultMessage()));
         }
 
         return ResponseEntity
@@ -53,6 +53,7 @@ public class GlobalExceptionHandler {
         @Getter
         public static class ErrorField {
             private Object value;
+            private String field;
             private String message;
         }
 

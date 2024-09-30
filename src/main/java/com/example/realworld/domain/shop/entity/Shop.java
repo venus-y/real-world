@@ -1,6 +1,8 @@
 package com.example.realworld.domain.shop.entity;
 
+import com.example.realworld.common.Address;
 import com.example.realworld.domain.menu.entity.Menu;
+import com.example.realworld.domain.order.entity.Order;
 import com.example.realworld.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,11 +31,17 @@ public class Shop {
     private Long id;
 
     private String name;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    private Address address;
+
+    @OneToMany(mappedBy = "shop")
+    private List<Order> orderList = new ArrayList<>();
+
     @OneToMany(mappedBy = "shop")
     private List<Menu> menuList = new ArrayList<>();
+
+
 }

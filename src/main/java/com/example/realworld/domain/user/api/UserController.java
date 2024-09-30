@@ -1,8 +1,8 @@
-package com.example.realworld.domain.user.controller;
+package com.example.realworld.domain.user.api;
 
 
 import com.example.realworld.common.aop.CheckBindingErrors;
-import com.example.realworld.domain.user.dto.MemberRegisterDto;
+import com.example.realworld.domain.user.dto.UserRegisterDto;
 import com.example.realworld.domain.user.repository.UserRepository;
 import com.example.realworld.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -29,9 +29,9 @@ public class UserController {
     @PostMapping("/")
     @CheckBindingErrors
 
-    public ResponseEntity<Object> register(@Valid @RequestBody MemberRegisterDto memberRegisterDto, BindingResult bindingResult) throws BindException {
+    public ResponseEntity<Object> register(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult) throws BindException {
 
-        Long id = userService.insert(memberRegisterDto);
+        Long id = userService.insert(userRegisterDto);
 
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
