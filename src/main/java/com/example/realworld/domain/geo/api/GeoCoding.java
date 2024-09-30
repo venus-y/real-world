@@ -1,8 +1,10 @@
 package com.example.realworld.domain.geo.api;
 
 
+import com.example.realworld.common.config.GeoInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -12,13 +14,12 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class GeoCoding {
-
 
     public static Map<String, String> getGeoDataByAddress(String completeAddress) {
         try {
-            String API_KEY = "AIzaSyBIgUu-n-H8s9E2azpcO2Z07fklltHjWy8";
-            String surl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(completeAddress, "UTF-8") + "&key=" + API_KEY;
+            String surl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(completeAddress, "UTF-8") + "&key=" + GeoInfo.API_KEY;
             URL url = new URL(surl);
             InputStream is = url.openConnection().getInputStream();
 
@@ -66,4 +67,5 @@ public class GeoCoding {
         return null;
     }
 
+    
 }
