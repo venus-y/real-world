@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class MemberRegisterDto {
+public class UserRegisterDto {
 
     @NotEmpty
     @Pattern(regexp = "^[A-Za-z\\d]{8,12}$", message = "아이디는 8자에서 12자 사이의 영문자와 숫자로 구성되어야 합니다.")

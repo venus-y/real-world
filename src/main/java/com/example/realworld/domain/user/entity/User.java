@@ -5,8 +5,8 @@ import com.example.realworld.common.BaseTimeEntity;
 import com.example.realworld.domain.order.entity.Order;
 import com.example.realworld.domain.payment.entity.Payment;
 import com.example.realworld.domain.shop.entity.Shop;
-import com.example.realworld.domain.user.dto.MemberRegisterDto;
-import jakarta.persistence.ElementCollection;
+import com.example.realworld.domain.user.dto.UserRegisterDto;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -42,8 +42,8 @@ public class User extends BaseTimeEntity {
     private Address address;
     @OneToMany(mappedBy = "user")
     private List<Order> orderList = new ArrayList<>();
-    @ElementCollection
-    private List<String> fcmTokenList = new ArrayList<>();
+    @Nullable
+    private String fcmToken;
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
     @OneToMany(mappedBy = "user")
@@ -51,18 +51,19 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<Payment> payments = new ArrayList<>();
 
-    public static User toUserEntity(MemberRegisterDto memberRegisterDto) {
+    public static User toUserEntity(UserRegisterDto userRegisterDto) {
         User user = new User();
-        user.username = memberRegisterDto.getUsername();
-        user.password = memberRegisterDto.getPassword();
-        user.email = memberRegisterDto.getEmail();
+        user.username = userRegisterDto.getUsername();
+        user.password = userRegisterDto.getPassword();
+        user.email = userRegisterDto.getEmail();
         user.address = toAddress(
-                memberRegisterDto.getStreet(),
-                memberRegisterDto.getCity(),
-                memberRegisterDto.getZipcode());
+                userRegisterDto.getStreet(),
+                userRegisterDto.getCity(),
+                userRegisterDto.getZipcode());
         user.role = ROLE.ROLE_USER;
-        user.fcmTokenList.add(memberRegisterDto.getFcmToken());
+        user.fcmToken = (userRegisterDto.getFcmToken());
         return user;
     }
+
 
 }

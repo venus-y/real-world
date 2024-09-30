@@ -1,4 +1,4 @@
-package com.example.realworld.domain.fcm.controller;
+package com.example.realworld.domain.fcm.api;
 
 import com.example.realworld.domain.fcm.dto.MessageRequestDto;
 import com.example.realworld.domain.fcm.service.FcmService;

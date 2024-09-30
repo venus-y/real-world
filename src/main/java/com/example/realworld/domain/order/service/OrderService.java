@@ -8,6 +8,7 @@ import com.example.realworld.domain.order.dto.OrderRequestDto;
 import com.example.realworld.domain.order.entity.Order;
 import com.example.realworld.domain.order.entity.OrderMenu;
 import com.example.realworld.domain.order.entity.OrderStatus;
+import com.example.realworld.domain.order.exception.ForbiddenOrderApprovalActionException;
 import com.example.realworld.domain.order.repository.OrderMenuRepository;
 import com.example.realworld.domain.order.repository.OrderRepository;
 import com.example.realworld.domain.payment.entity.PayType;
@@ -32,6 +33,7 @@ import static com.example.realworld.domain.order.entity.OrderMenu.toOrderMenu;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -42,7 +44,6 @@ public class OrderService {
     private final ShopRepository shopRepository;
     private final FcmService fcmService;
 
-    @Transactional
     public Long processOrder(OrderRequestDto orderRequestDto, String username) {
 
         User findUser = userRepository
@@ -65,9 +66,13 @@ public class OrderService {
 
         paymentRepository.save(payment);
 
+        Shop shop = shopRepository.
+                findById(orderRequestDto.getShopId()).orElseThrow(() -> new NotFoundException("존재하지 않는 상점입니다."));
+
         Order order = Order.builder()
                 .user(findUser)
                 .orderStatus(OrderStatus.CREATED)
+                .shop(shop)
                 .build();
 
         Order savedOrder = orderRepository.save(order);
@@ -98,19 +103,30 @@ public class OrderService {
 
         orderMenuRepository.saveAll(orderMenuList);
 
-        Shop shop = shopRepository.
-                findById(orderRequestDto.getShopId()).orElseThrow(() -> new NotFoundException("존재하지 않는 상접입니다."));
 
         String ownerName = shop
                 .getUser()
                 .getUsername();
 
-        fcmService.sendMessageToOwners(ownerName);
+        fcmService.sendMessageByToken("테스트제목", "테스트바디", ownerName);
 
 
         // 결제 Entity
 
 
         return savedOrder.getId();
+    }
+
+    public void approveOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("존재하지 않는 주문정보입니다"));
+        User user = order.getShop().getUser();
+        if (user.getId().equals(userId)) {
+            order.updateOrderStatus(OrderStatus.APPROVED);
+            // 주문요청한 회원에게 푸시 메시지 전송
+            fcmService.sendMessageByToken("테스트제목", "테스트바디", order.getUser().getUsername());
+//            fcmService.sendMessageToRiders();<<<
+        } else {
+            throw new ForbiddenOrderApprovalActionException("주문을 승인할 권한이 없습니다");
+        }
     }
 }

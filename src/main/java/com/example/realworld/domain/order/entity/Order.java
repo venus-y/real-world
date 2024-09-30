@@ -1,6 +1,7 @@
 package com.example.realworld.domain.order.entity;
 
 import com.example.realworld.common.BaseTimeEntity;
+import com.example.realworld.domain.shop.entity.Shop;
 import com.example.realworld.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,9 +41,16 @@ public class Order extends BaseTimeEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-
     private OrderStatus orderStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
 
     @OneToMany(mappedBy = "order")
     private List<OrderMenu> orderMenuList = new ArrayList<>();
+
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }
