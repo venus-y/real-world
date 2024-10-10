@@ -43,5 +43,8 @@ public class Shop {
     @OneToMany(mappedBy = "shop")
     private List<Menu> menuList = new ArrayList<>();
 
+    public Shop(Long id) {
+        this.id = id;
+    }
 
 }

@@ -47,7 +47,7 @@ public class Order extends BaseTimeEntity {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderMenu> orderMenuList = new ArrayList<>();
 
     public void updateOrderStatus(OrderStatus orderStatus) {

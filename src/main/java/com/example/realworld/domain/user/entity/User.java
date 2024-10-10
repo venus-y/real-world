@@ -51,6 +51,10 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<Payment> payments = new ArrayList<>();
 
+    public User(Long id) {
+        this.id = id;
+    }
+
     public static User toUserEntity(UserRegisterDto userRegisterDto) {
         User user = new User();
         user.username = userRegisterDto.getUsername();
@@ -64,6 +68,4 @@ public class User extends BaseTimeEntity {
         user.fcmToken = (userRegisterDto.getFcmToken());
         return user;
     }
-
-
 }

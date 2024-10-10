@@ -3,9 +3,11 @@ package com.example.realworld.domain.order.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class OrderMenuRequestDto {
 
     @NotNull

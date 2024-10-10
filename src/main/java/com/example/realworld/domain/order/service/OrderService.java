@@ -5,6 +5,7 @@ import com.example.realworld.domain.menu.entity.Menu;
 import com.example.realworld.domain.menu.repository.MenuRepository;
 import com.example.realworld.domain.order.dto.OrderMenuRequestDto;
 import com.example.realworld.domain.order.dto.OrderRequestDto;
+import com.example.realworld.domain.order.dto.OrderResponseDto;
 import com.example.realworld.domain.order.entity.Order;
 import com.example.realworld.domain.order.entity.OrderMenu;
 import com.example.realworld.domain.order.entity.OrderStatus;
@@ -21,6 +22,9 @@ import com.example.realworld.domain.user.exception.NotFoundException;
 import com.example.realworld.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,5 +132,18 @@ public class OrderService {
         } else {
             throw new ForbiddenOrderApprovalActionException("주문을 승인할 권한이 없습니다");
         }
+    }
+
+    public Page<OrderResponseDto> getOrderList(Pageable pageable) {
+        Page<Order> orderList = orderRepository.getOrderList(pageable);
+
+        List<OrderResponseDto> orderResponseDtoList = orderList.getContent().stream()
+                .map(order -> {
+                    List<OrderMenu> orderMenuList = order.getOrderMenuList();
+                    return new OrderResponseDto(order, orderMenuList);
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(orderResponseDtoList, pageable, orderList.getTotalElements());
     }
 }

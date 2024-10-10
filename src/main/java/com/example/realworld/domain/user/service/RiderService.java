@@ -48,6 +48,9 @@ public class RiderService {
 
             saveLocation(riderId, lng, lat);
 
+            String address = locationRegisterDto.getCity() + " " + locationRegisterDto.getStreet();
+            redisTemplate.opsForValue().set("rider:" + riderId + ":address", address);
+
         }
 
 
